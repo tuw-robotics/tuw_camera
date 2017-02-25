@@ -107,3 +107,4 @@ void ImagePublisherNodelet::publish () {
     }
 }
 }
+
