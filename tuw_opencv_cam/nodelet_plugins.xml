@@ -1,0 +1,7 @@
+<library path="lib/libtuw_opencv_cam_nodelet">
+  <class name="tuw_opencv_cam/tuw_opencv_cam_nodelet" type="tuw_opencv_cam::OpencvCamNodelet" base_class_type="nodelet::Nodelet">
+  <description>
+  This is my nodelet.
+  </description>
+  </class>
+</library>

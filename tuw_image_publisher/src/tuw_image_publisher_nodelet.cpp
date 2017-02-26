@@ -26,25 +26,13 @@ void autoExpandEnvironmentVariables ( std::string & text ) {
 namespace tuw_image_publisher {
 void ImagePublisherNodelet::onInit() {
     NODELET_DEBUG ( "Initializing nodelet..." );
-    ros::NodeHandle &n         = getNodeHandle();
-    ros::NodeHandle &private_nh = getPrivateNodeHandle();
+    private_nh_ = getPrivateNodeHandle();
     /// subscribes to  odometry values
-    image_transport_ = std::shared_ptr<image_transport::ImageTransport> ( new image_transport::ImageTransport ( private_nh ) );
-    pub_camera_ = image_transport::ImageTransport ( private_nh ).advertiseCamera ( "image_raw", 1 );
+    image_transport_ = std::shared_ptr<image_transport::ImageTransport> ( new image_transport::ImageTransport ( private_nh_ ) );
+    pub_camera_ = image_transport::ImageTransport ( private_nh_ ).advertiseCamera ( "image_raw", 1 );
 
     reconfigureFnc_ = boost::bind ( &ImagePublisherNodelet::callbackReconfigure, this,  _1, _2 );
     reconfigureServer_.setCallback ( reconfigureFnc_ );
-    ros::Rate rate ( config_.rate );
-
-
-    while ( ros::ok() ) {
-	publish();
-        /// calls all callbacks waiting in the queue
-        ros::spinOnce();
-
-        /// sleep for the time remaining to let us hit our publish rate
-        rate.sleep();
-    }
 }
 
 int ImagePublisherNodelet::files_in_folder ( std::vector<std::string> &files, std::string folder, std::string regx ) {
@@ -76,10 +64,11 @@ void ImagePublisherNodelet::callbackReconfigure ( tuw_image_publisher::ImagePubl
     NODELET_DEBUG ( "callbackReconfigure!" );
     config_ = config;
     image_idx_ = files_in_folder ( image_files_,config_.folder,  config_.file_regx ) - 1;
+    timer_ = private_nh_.createTimer(ros::Duration(1.0/config_.publish_rate), &ImagePublisherNodelet::publish, this);
 }
 
 
-void ImagePublisherNodelet::publish () {
+void ImagePublisherNodelet::publish (const ros::TimerEvent& event) {
     NODELET_DEBUG ( "publish!" );
     if ( ( image_idx_ ) < 0 ) {
         NODELET_ERROR ( "no image files: %s / %s!", config_.folder.c_str(), config_.file_regx.c_str() );

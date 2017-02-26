@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen"/>
+
+  <node pkg="nodelet" type="nodelet" name="OpencvCamNodelet" args="load tuw_opencv_cam/tuw_opencv_cam_nodelet standalone_nodelet" output="screen">
+  </node>                 
+</launch>

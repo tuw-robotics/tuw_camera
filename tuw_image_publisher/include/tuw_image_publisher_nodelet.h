@@ -1,3 +1,6 @@
+#ifndef TUW_IMAGE_PUBLISHER_NOTELET_H
+#define TUW_IMAGE_PUBLISHER_NOTELET_H
+
 #include <nodelet/nodelet.h>
 #include <nav_msgs/Odometry.h>
 #include <dynamic_reconfigure/server.h>
@@ -23,13 +26,18 @@ public:
     std::string image_last_;
     std::size_t image_idx_;
     cv::Mat image_;
+    ros::Timer timer_;
+    ros::NodeHandle private_nh_;
       
     tuw_image_publisher::ImagePublisherConfig config_;
     dynamic_reconfigure::Server<tuw_image_publisher::ImagePublisherConfig> reconfigureServer_; /// parameter server 
     dynamic_reconfigure::Server<tuw_image_publisher::ImagePublisherConfig>::CallbackType reconfigureFnc_; /// parameter server stuff general use
     void callbackReconfigure ( tuw_image_publisher::ImagePublisherConfig &config, uint32_t level ); /// callback function on incoming parameter changes for general use
     int files_in_folder ( std::vector<std::string> &files, std::string folder,  const std::string regx = "(.*)$");
-    void publish ();
+    void publish (const ros::TimerEvent& event);
 };
 
 }
+
+
+#endif
